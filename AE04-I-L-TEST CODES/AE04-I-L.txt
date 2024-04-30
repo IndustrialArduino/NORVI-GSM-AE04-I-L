@@ -27,7 +27,7 @@
 
 #define ANALOG_PIN_0 36
 
-#define INPUT1 39
+#define INPUT1 27
 #define INPUT2 34
 #define INPUT3 35
 #define INPUT4 14
@@ -80,14 +80,17 @@ void setup() {
   Serial.begin(115200);
 
   Serial.println("Hello");
+
+  
+  pinMode(RS485_FC, OUTPUT);
+  digitalWrite(RS485_FC, HIGH);   // RS-485 
+  
   Serial1.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX); 
   Serial2.begin(115200, SERIAL_8N1, GSM_RX, GSM_TX); 
 
   pinMode(GSM_RESET, OUTPUT);
   digitalWrite(GSM_RESET, HIGH);   // RS-485 
 
-  pinMode(RS485_FC, OUTPUT);
-  digitalWrite(RS485_FC, HIGH);   // RS-485 
   
   pinMode(OUTPUT1, OUTPUT);
   pinMode(OUTPUT2, OUTPUT);
@@ -236,9 +239,21 @@ void loop() {
   digitalWrite(OUTPUT2, LOW);
    
   Serial1.println("Hello RS-485");
-   
- //Serial2.println("AT");
- delay(1000);
+  
+  digitalWrite(RS485_FC, HIGH);                    // Make FLOW CONTROL pin HIGH
+  delay(500);
+  Serial1.println(F("RS485 01 SUCCESS"));    // Send RS485 SUCCESS serially
+  delay(500);                                // Wait for transmission of data
+  digitalWrite(RS485_FC, LOW) ;                    // Receiving mode ON
+
+                                             // Serial1.flush() ;
+  delay(500);     
+  
+  while (Serial1.available()) {  // Check if data is available
+    char c = Serial1.read();     // Read data from RS485
+    Serial.write(c);             // Print data on serial monitor
+  }
+ delay(500);
  
  
 }
